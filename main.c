@@ -362,8 +362,8 @@ main ()
   printf("          ********---     ABC HOTEL    ---********\n");
   ltime=time(NULL);
   local=localtime(&ltime);
-  printf("                                                   TIME:%d:%d\n",local->tm_hour,local->tm_min);
-  printf("                                                   DATE:%d:%d:%d\n",local->tm_mday,local->tm_mon,local->tm_year);
+  printf("                                                   TIME:%d:%d GMT\n",local->tm_hour,local->tm_min);
+  printf("                                                   DATE:%d:%d:%d\n",local->tm_mday,local->tm_mon,local->tm_year-100);
   char c;
   FILE *fp,*ptr;
   struct hreserve t;
