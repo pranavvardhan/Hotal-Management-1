@@ -14,9 +14,10 @@ struct hreserve
   int id;
 };
 struct det{
-    int tot;
-    float rat;
-    int tr;
+    int droomno;
+    char name[20];
+    time_t intime,outtime;
+    struct tm *l;
 };
 int a =0;
 float rate=0;
@@ -150,7 +151,7 @@ fclose(fp);
   while (ctn == 'y')
     {
       int p;
-      printf ("1 for insert\n2 for changing password\n3 for service\n4 for viewing");
+      printf ("1 for insert\n2 for changing password\n3 for service\n4 for viewing\n 5 for stored contents\n");
       scanf ("%d", &p);
       switch (p)
 	{
@@ -178,6 +179,11 @@ fclose(fp);
 	 case 4:
 	 {
 	     view();
+	     return 0;
+	 }
+	 case 5:
+	 {
+	    /* dstore();*/
 	     return 0;
 	 }
 	  printf ("do you want to continue\n y to continue n to stop\n");
@@ -351,7 +357,13 @@ int customer()
 int
 main ()
 {
-  printf("  ********---     ABC HOTEL    ---********\n");
+  time_t ltime;
+  struct tm *local;
+  printf("          ********---     ABC HOTEL    ---********\n");
+  ltime=time(NULL);
+  local=localtime(&ltime);
+  printf("                                                   TIME:%d:%d\n",local->tm_hour,local->tm_min);
+  printf("                                                   DATE:%d:%d:%d\n",local->tm_mday,local->tm_mon,local->tm_year);
   char c;
   FILE *fp,*ptr;
   struct hreserve t;
