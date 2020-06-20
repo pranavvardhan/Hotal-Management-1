@@ -34,13 +34,13 @@ rinsert ()
   fp = fopen ("Rooms.bin", "ab");
   for (int i = 0; i < n; i++)
     {
-      printf ("Room\n");
+      printf ("Enter the Room number:\n");
       scanf ("%d", &t.roomno);
-      printf ("room type\n");
+      printf ("Enter the room type:\n");
       scanf("%d",&t.rtype);
       t.check = 0;
       t.status = 'y';
-      fwrite(&t, sizeof (struct hreserve), 1, fp);
+      fwrite(&t, sizeof (struct hreserve), n, fp);
       a++;
     }
   fclose (fp);
@@ -91,8 +91,8 @@ void rservice()
         fread (&t, sizeof (struct hreserve), 1, fp);
         if(t.check==1 && t.status== 'y')
         { 
-            printf("Do you want to service room%d\n",t.roomno);
-            printf("press 1 for yes\t 2 for no\n");
+            printf("Do you want to service room number:%d\n",t.roomno);
+            printf("press 1 for yes\t press 2 for no\n");
             scanf("%d",&ans);
             if(ans==1)
             {
@@ -151,7 +151,8 @@ fclose(fp);
   while (ctn == 'y')
     {
       int p;
-      printf ("1 for insert\n2 for changing password\n3 for service\n4 for viewing\n 5 for stored contents\n");
+      printf("ADMIN MENU:\n");
+      printf ("PRESS\n<1> for adding new room\n<2> for changing password\n<3> for servicing room\n<4> for viewing\n<5> for stored contents\n");
       scanf ("%d", &p);
       switch (p)
 	{
@@ -218,12 +219,12 @@ roomcheck (int type)
       fclose (fp);
       if (flag == 0)
 	{
-	  printf ("rooms are currently not available\n ");
+	  printf ("Rooms are currently not available\n ");
 	  return 0;
 	}
     
   int reg;
-  printf ("do you want book this room\n press 1 for yes press 2 for no\n");
+  printf ("Do you want book this room:\n press 1 for yes press 2 for no\n");
   scanf ("%d", &reg);
   if (reg == 1)
     {
@@ -239,8 +240,9 @@ roomcheck (int type)
 	      t.status = 'n';
 	      t.check = 1;
 	      t.id = rand();
+	      printf("Your unique ID:%d\n",t.id);
 	      fwrite (&t, sizeof (struct hreserve), 1, fp);
-	      printf ("room booked successfully\n");
+	      printf ("Room booked successfully\nUse your ID to check in your visit\n");
 	      break;
 	    }
 	}
@@ -274,7 +276,7 @@ amountcalc (int t, int type)
     }
   else
     {
-      printf ("enter a valid type\n");
+      printf ("Enter a valid type\n");
       return 0;
     }
   return amount;
@@ -297,7 +299,7 @@ checkout (int drno)
 	  t.status = 'y';
 	  t.id=0;
 	  fwrite (&t, sizeof (struct hreserve), 1, fp);
-	  printf ("thankyou\n");
+	  printf (" **** THANKYOU ****\n");
 	  break;
 	}
     }
@@ -323,11 +325,11 @@ int customer()
   char ch[30];
   int i;
    
-    printf ("for checkin press 1\nfor checkout press 2\n");
+    printf ("For checkin press 1\nFor checkout press 2\n");
    scanf ("%d", &i);
     if (i == 1)
     {
-	   printf ("enter the choice of room\n1 for 1bed\n2 for 2bed\n3 for villa\n");
+	   printf ("Enter the choice of room:\n<1> for 1bed\n<2> for 2bed\n<3> for villa\n");
 	   scanf("%d",&type);
 	   
 
@@ -335,21 +337,21 @@ int customer()
         if (dno != 0)
 	    {
 	      int tm;
-	      printf ("enter the time of your stay in hours ");
+	      printf ("Enter the time of your stay in hours:\n ");
 	      scanf ("%d", &tm);
 	      amount = amountcalc (tm, type);
-	      printf ("your estimated total amount is:\n");
+	      printf ("Your estimated total amount is:\n");
 	      printf ("%f", amount);
           return 0;
 	    }
     }
     else if (i == 2)
     {
-	printf ("enter your room no\n");
+	printf ("Enter your room no\n");
 	int rno;
 	scanf ("%d", &rno);
 	checkout (rno);
-	printf ("please visit again\n");
+	printf ("*** << Please visit again >> ***\n");
     }
   return 0;
 }
@@ -357,15 +359,48 @@ int customer()
 int
 main ()
 {
+   FILE *fptr,*fptr1;
+  int instruct,flag=1;
+  if((fptr=fopen("norooms.txt","r"))==NULL)
+  {
+     
+      printf("* Seems you are using this program for the first time\n\n");
+      printf("* Customize this program to your needs\n\n");
+      printf("* It takes a while to set up\n\n");
+      char name[30];
+      printf("Enter the name of your hotel\n");
+      scanf("%s",&name);
+      fptr1=fopen("hotelname.txt","w");
+      fprintf(fptr1,"%s",name);
+      fclose(fptr1);
+      fptr1=fopen("norooms.txt","w");
+      fprintf(fptr1,"%d",flag);
+      fclose(fptr1);
+      fptr1=fopen("password.txt","w");
+      printf("Enter your administrator password\n");
+      char pass[30];
+      scanf("%s",&pass);
+      fprintf(fptr1,"%s",pass);
+      fclose(fptr1);
+     
+      printf("** Your setup is complete **\n");
+      exit(5);
+ 
+  }
+   fclose(fptr);
   time_t ltime;
   struct tm *local;
-  printf("          ********---     ABC HOTEL    ---********\n");
+   FILE *fp,*ptr;
+   fp=fopen("hotelname.txt","r");
+   char htl[30];
+   fscanf(fp,"%s",htl);
+  printf("          ********---     %s    ---********\n",htl);
+  fclose(fp);
   ltime=time(NULL);
   local=localtime(&ltime);
   printf("                                                   TIME:%d:%d GMT\n",local->tm_hour,local->tm_min);
   printf("                                                   DATE:%d:%d:%d\n",local->tm_mday,local->tm_mon,local->tm_year-100);
   char c;
-  FILE *fp,*ptr;
   struct hreserve t;
   float sum=0;
   int j,l=0;
@@ -386,12 +421,12 @@ main ()
   }
   fscanf(ptr,"%d",&a);
   fclose(ptr);
-  printf ("customer: press c\nadmin: press a\n");
+  printf ("TO LOGIN AS CUSTOMER: press c\nTO LOGIN AS ADMIN: press a\n");
   scanf ("%c", &c);
   if (c == 'a')
     {
       char rpwd[30];
-      printf ("enter the password:\n");
+      printf ("enter the admin password:\n");
       scanf("%s",&rpwd);
       
       admin (rpwd);
