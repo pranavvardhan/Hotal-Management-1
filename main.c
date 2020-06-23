@@ -19,6 +19,10 @@ struct det{
     time_t intime,outtime;
     struct tm *l;
 };
+struct price
+{
+    float bed_1,bed_2,vil_la;
+};
 int a =0;
 float rate=0;
 
@@ -27,7 +31,7 @@ void
 rinsert ()
 {
   int n;
-  printf ("enter the no. of rooms to be added\n");
+  printf ("Enter the no. of rooms to be added\n");
   scanf ("%d", &n);
   struct hreserve t;
   FILE *fp;
@@ -36,7 +40,7 @@ rinsert ()
     {
       printf ("Enter the Room number:\n");
       scanf ("%d", &t.roomno);
-      printf ("Enter the room type:\n");
+      printf ("Enter the room type:\t <1> for 1bed <2> for 2bed <3> for villa\n");
       scanf("%d",&t.rtype);
       t.check = 0;
       t.status = 'y';
@@ -44,6 +48,7 @@ rinsert ()
       a++;
     }
   fclose (fp);
+  printf("The room is added\n");
   FILE *ptr;
   ptr=fopen("norooms.txt","w");
   if(ptr==NULL)
@@ -62,12 +67,12 @@ void
 pwdchange ()
 {
   char npwd[10],gpwd[30];
-  printf ("enter the new password:\n");
-  printf(" for better safety include atleast 1uppercase letter 1 symbol and 1number in your password\n");
+  printf ("Enter the new password:\n");
+  printf("For better safety include atleast 1uppercase letter 1 symbol and 1number in your password\n");
   FILE *fp;
   fp=fopen("password.txt","w");
   scanf("%s",&npwd);
-  printf("enter your password again\n");
+  printf("Enter your password again\n");
   scanf("%s",&gpwd);
   if(strcmp(npwd,gpwd)==0)
   {
@@ -75,10 +80,10 @@ pwdchange ()
   }
   else
   {
-      printf("enter matching password\n");
+      printf("Enter matching password\n");
   }
   fclose(fp);
-  printf ("the password is changed\n");
+  printf ("The password is changed\n");
 }
 void rservice()
 {
@@ -92,13 +97,13 @@ void rservice()
         if(t.check==1 && t.status== 'y')
         { 
             printf("Do you want to service room number:%d\n",t.roomno);
-            printf("press 1 for yes\t press 2 for no\n");
+            printf("Press 1 for yes\t press 2 for no\n");
             scanf("%d",&ans);
             if(ans==1)
             {
                 fseek(fp,-1*sizeof(struct hreserve),SEEK_CUR);
                 t.check=0;
-                printf("room %d has serviced\n",t.roomno);
+                printf("Room %d has serviced\n",t.roomno);
                 fwrite(&t, sizeof (struct hreserve), 1, fp);
                 continue;
             }
@@ -116,18 +121,29 @@ void view()
     FILE *fp;
     fp=fopen("Rooms.bin","rb");
     int rno1;
-    printf("enter the room no\n");
+    printf("Enter the room no\n");
     scanf("%d",&rno1);
   for(int i=0;i<a;i++)
   {
       fread(&t,sizeof(struct hreserve),1,fp);
       if(t.roomno==rno1)
       {
-      printf("room no:%d\nroom type:%d\nstatus:%c\nid:%d\n",t.roomno,t.rtype,t.status,t.id);
+      printf("Room no:%d\nRoom type:%d\nStatus:%c\nID:%d\n",t.roomno,t.rtype,t.status,t.id);
       break;
       }
   }
   fclose(fp);
+}
+void priceincrease()
+{
+    FILE *fp;
+    struct price t;
+    fp=fopen("price.bin","wb");
+    printf("Enter the new amounts for the types \n*1bed\n*2bed\n*villa\n");
+    scanf("%f%f%F",&t.bed_1,&t.bed_2,&t.vil_la);
+    fwrite(&t,sizeof(struct price),1,fp);
+    fclose(fp);
+    printf("The new prices are updated");
 }
 
 int
@@ -140,7 +156,7 @@ admin (char *pwd)
  {
      if(strcmp(ch,pwd)!=0)
      {
-         printf("password is incorrect\n");
+         printf("Password is incorrect\n");
          fclose(fp);
          return 0;
      }
@@ -152,7 +168,7 @@ fclose(fp);
     {
       int p;
       printf("ADMIN MENU:\n");
-      printf ("PRESS\n<1> for adding new room\n<2> for changing password\n<3> for servicing room\n<4> for viewing\n<5> for stored contents\n");
+      printf ("PRESS\n<1> for adding new room\n<2> for changing password\n<3> for servicing room\n<4> for viewing\n<5> for new rents\n");
       scanf ("%d", &p);
       switch (p)
 	{
@@ -184,10 +200,10 @@ fclose(fp);
 	 }
 	 case 5:
 	 {
-	    /* dstore();*/
+	     priceincrease();
 	     return 0;
 	 }
-	  printf ("do you want to continue\n y to continue n to stop\n");
+	  printf ("Do you want to continue\n y to continue n to stop\n");
 	  scanf ("%c", &ctn);
 
 	}
@@ -211,7 +227,7 @@ roomcheck (int type)
        
       if (t.status == 'y' &&  t.rtype == type)
 	{
-	  printf ("room no :%d\nroom type:%d\n", t.roomno, t.rtype);
+	  printf ("Room no :%d\nRoom type:%d\n", t.roomno, t.rtype);
 	  p = t.roomno;
 	  flag = 1;
 	  break;
@@ -261,18 +277,24 @@ roomcheck (int type)
 float
 amountcalc (int t, int type)
 {
-  float amount;
+   FILE *fp;
+   float amount;
+   struct price p;
+   float a=100,b=200,c=500;
+   fp=fopen("price.bin","rb");
+   if(fp==NULL)
+   {
   if (type == 1)
     {
-      amount = 100 * t;
+      amount = a * t;
     }
   else if (type==2)
     {
-      amount = 200 * t;
+      amount = b * t;
     }
   else if (type == 3)
     {
-      amount = 500 * t;
+      amount = c * t;
     }
   else
     {
@@ -280,6 +302,30 @@ amountcalc (int t, int type)
       return 0;
     }
   return amount;
+   }
+   fread(&p,sizeof(struct price),1,fp);
+   a=p.bed_1;
+   b=p.bed_2;
+   c=p.vil_la;
+    if (type == 1)
+    {
+      amount = a * t;
+    }
+  else if (type==2)
+    {
+      amount = b * t;
+    }
+  else if (type == 3)
+    {
+      amount = c * t;
+    }
+  else
+    {
+      printf ("Enter a valid type\n");
+      return 0;
+    }
+    fclose(fp);
+    return amount;
 }
 
 
@@ -426,7 +472,7 @@ main ()
   if (c == 'a')
     {
       char rpwd[30];
-      printf ("enter the admin password:\n");
+      printf ("Enter the admin password:\n");
       scanf("%s",&rpwd);
       
       admin (rpwd);
