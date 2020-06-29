@@ -57,10 +57,7 @@ rinsert ()
       exit(1);
   }
   fprintf(ptr,"%d",a);
-  fclose(ptr);
- 
-   
-  
+  fclose(ptr);  
 }
 
 void
@@ -210,7 +207,6 @@ fclose(fp);
 	}
     }
     return 0;
-
 }
 
 int
