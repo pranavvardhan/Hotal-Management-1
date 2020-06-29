@@ -115,6 +115,7 @@ void rservice()
     }
     fclose(fp);
 }
+
 void view()
 {
     struct hreserve t;
